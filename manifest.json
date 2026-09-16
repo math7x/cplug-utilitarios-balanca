@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "UP - Utilitários CPlug (Balança)",
+  "version": "3.3",
+  "description": "Renomeia o arquivo, corrige a validade no download, gerencia validades e envia a carga em lotes de 500 (contorna o limite da API do CPlug)",
+  "permissions": [
+    "downloads",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://app.connectplug.com.br/*"
+      ],
+      "js": [
+        "lote-carga.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://app.connectplug.com.br/*"
+      ],
+      "js": [
+        "ponte.js"
+      ],
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "https://app.connectplug.com.br/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://app.connectplug.com.br/*"
+      ],
+      "js": [
+        "validade-mgv.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "UP - Validade dos produtos",
+    "default_icon": {
+      "16": "icon16.png",
+      "32": "icon32.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}
