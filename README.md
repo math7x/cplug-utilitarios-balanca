@@ -2,6 +2,14 @@
 
 Extensão para apoiar a preparação e o envio de cargas de balança no ConnectPlug. Automatiza tarefas repetitivas do arquivo de carga e organiza o envio em lotes menores.
 
+## Problema que resolve
+
+O processo de carga para balanças envolve renomear arquivos, manter validades por produto e respeitar limites de quantidade da API. Quando isso é feito manualmente, são comuns arquivos com validade incorreta, lotes grandes demais e a necessidade de repetir toda a operação após uma falha.
+
+## Solução desenvolvida
+
+A extensão centraliza as validades, ajusta o arquivo baixado e divide o envio em lotes de até 500 registros. O usuário acompanha o andamento pela interface e pode reutilizar a configuração salva, reduzindo erros operacionais e o tempo gasto na preparação de cada carga.
+
 ## Funcionalidades
 
 - renomeia arquivos baixados conforme o fluxo operacional;
