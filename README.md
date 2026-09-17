@@ -22,3 +22,7 @@ Extensão para apoiar a preparação e o envio de cargas de balança no ConnectP
 Consulte [INSTALAÇÃO.md](./INSTALA%C3%87%C3%83O.md) para o passo a passo de instalação e configuração.
 
 Tecnologias principais: JavaScript, HTML, Chrome Extensions API e JSON.
+
+## Autoria
+
+Desenvolvido por [math7x](https://github.com/math7x).
