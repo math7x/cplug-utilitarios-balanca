@@ -11,6 +11,7 @@ const RENAME_MAP = {
 };
 
 const ARQUIVO_BASE = 'validades.json';
+const abasComDebugger = new Set();
 
 // ------------------------------------------------- renomear download ----
 chrome.downloads.onDeterminingFilename.addListener((downloadItem, suggest) => {
@@ -78,6 +79,23 @@ chrome.runtime.onMessage.addListener(function (msg, sender, responder) {
   (async function () {
     try {
       switch (msg && msg.tipo) {
+
+        case 'cliqueReal': {
+          if (!sender.tab || !sender.tab.id) {
+            responder({ ok: false, erro: 'aba não encontrada' });
+            break;
+          }
+
+          await cliqueRealNaAba(sender.tab.id, msg.x, msg.y);
+          responder({ ok: true });
+          break;
+        }
+
+        case 'soltarDebugger': {
+          if (sender.tab && sender.tab.id) await soltarDebugger(sender.tab.id);
+          responder({ ok: true });
+          break;
+        }
 
         case 'obterTabela': {
           const s = await garantirSemente();
@@ -191,6 +209,77 @@ chrome.runtime.onMessage.addListener(function (msg, sender, responder) {
 
   return true;   // resposta assincrona
 });
+
+// ------------------------------------------------------ clique real -----
+function chamarDebugger(tabId, metodo, params) {
+  return new Promise((resolve, reject) => {
+    chrome.debugger.sendCommand({ tabId: tabId }, metodo, params || {}, (retorno) => {
+      const erro = chrome.runtime.lastError;
+      if (erro) reject(new Error(erro.message));
+      else resolve(retorno);
+    });
+  });
+}
+
+function anexarDebugger(tabId) {
+  if (abasComDebugger.has(tabId)) return Promise.resolve();
+
+  return new Promise((resolve, reject) => {
+    chrome.debugger.attach({ tabId: tabId }, "1.3", () => {
+      const erro = chrome.runtime.lastError;
+      if (erro && !/Another debugger is already attached/i.test(erro.message || "")) {
+        reject(new Error(erro.message));
+        return;
+      }
+
+      abasComDebugger.add(tabId);
+      resolve();
+    });
+  });
+}
+
+async function soltarDebugger(tabId) {
+  if (!abasComDebugger.has(tabId)) return;
+
+  await new Promise((resolve) => {
+    chrome.debugger.detach({ tabId: tabId }, () => {
+      abasComDebugger.delete(tabId);
+      resolve();
+    });
+  });
+}
+
+async function cliqueRealNaAba(tabId, x, y) {
+  await anexarDebugger(tabId);
+
+  const ponto = {
+    x: Math.round(Number(x)),
+    y: Math.round(Number(y)),
+  };
+
+  await chamarDebugger(tabId, "Input.dispatchMouseEvent", {
+    type: "mouseMoved",
+    x: ponto.x,
+    y: ponto.y,
+    button: "none",
+  });
+  await chamarDebugger(tabId, "Input.dispatchMouseEvent", {
+    type: "mousePressed",
+    x: ponto.x,
+    y: ponto.y,
+    button: "left",
+    buttons: 1,
+    clickCount: 1,
+  });
+  await chamarDebugger(tabId, "Input.dispatchMouseEvent", {
+    type: "mouseReleased",
+    x: ponto.x,
+    y: ponto.y,
+    button: "left",
+    buttons: 0,
+    clickCount: 1,
+  });
+}
 
 // ---------------------------------------------------------- badge -------
 function atualizarBadge(qtd) {
